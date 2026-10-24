@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Lock, Mail, User, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { authService, type UserProfile } from '../../services/api';
 
@@ -16,6 +16,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Security: completely reset form inputs and errors whenever modal opens or closes
+  const resetForm = useCallback(() => {
+    setEmail('');
+    setPassword('');
+    setName('');
+    setError(null);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen, resetForm]);
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const switchToLogin = () => {
+    setIsLogin(true);
+    setPassword('');
+    setError(null);
+  };
+
+  const switchToRegister = () => {
+    setIsLogin(false);
+    setPassword('');
+    setError(null);
+  };
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       } else {
         res = await authService.register(email, password, name || undefined);
       }
+      resetForm();
       onSuccess(res.user);
       onClose();
     } catch (err: any) {
@@ -47,7 +79,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-[#0d121f] p-6 shadow-2xl">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute right-4 top-4 p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
         >
           <X size={18} />
@@ -74,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         <div className="flex rounded-xl bg-slate-900/90 p-1 border border-slate-800 mb-5">
           <button
             type="button"
-            onClick={() => { setIsLogin(true); setError(null); }}
+            onClick={switchToLogin}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
               isLogin ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -83,7 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
           <button
             type="button"
-            onClick={() => { setIsLogin(false); setError(null); }}
+            onClick={switchToRegister}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
               !isLogin ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
             }`}
@@ -100,8 +132,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        {/* Form with security auto-complete policies */}
+        <form onSubmit={handleSubmit} className="space-y-3.5" autoComplete="off">
           {!isLogin && (
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1.5">
@@ -114,6 +146,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ada Lovelace"
+                  autoComplete="off"
                   className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                 />
               </div>
@@ -132,6 +165,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="engineer@company.com"
+                autoComplete={isLogin ? 'username' : 'off'}
                 className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -150,6 +184,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
                 className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
