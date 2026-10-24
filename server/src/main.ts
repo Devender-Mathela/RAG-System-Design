@@ -4,6 +4,16 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = 'file:./dev.db';
+  }
+  if (!process.env.JWT_SECRET) {
+    process.env.JWT_SECRET = 'system-design-jwt-secret-render-2026';
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    process.env.JWT_REFRESH_SECRET = 'system-design-refresh-secret-render-2026';
+  }
+
   // System Design Studio API Bootstrap - Groq & Gemini Enabled
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
@@ -62,10 +72,10 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   try {
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0');
     logger.log(`Frontend UI available at: ${clientUrl}`);
-    logger.log(`Backend Server running on: http://localhost:${port}`);
-    logger.log(`Swagger API Docs available at: http://localhost:${port}/api/docs`);
+    logger.log(`Backend Server running on: http://0.0.0.0:${port}`);
+    logger.log(`Swagger API Docs available at: http://0.0.0.0:${port}/api/docs`);
   } catch (err: any) {
     if (err.code === 'EADDRINUSE') {
       logger.error(`Port ${port} is already in use by another process.`);
