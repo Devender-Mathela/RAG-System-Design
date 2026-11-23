@@ -174,9 +174,9 @@ export const ArchitectureNode = memo(({ data, selected }: NodeProps) => {
         handleStyle={{ width: 8, height: 8, borderRadius: 2 }}
       />
 
-      {/* 4 Port Connection Handles */}
+      {/* 4 Port Universal Connection Handles */}
       <Handle
-        type="target"
+        type="source"
         position={Position.Left}
         id="left"
         className="!w-3 !h-3 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950"
@@ -188,7 +188,7 @@ export const ArchitectureNode = memo(({ data, selected }: NodeProps) => {
         className="!w-3 !h-3 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950"
       />
       <Handle
-        type="target"
+        type="source"
         position={Position.Top}
         id="top"
         className="!w-3 !h-3 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950"

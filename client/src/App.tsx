@@ -17,6 +17,7 @@ import {
   type NodeMouseHandler,
   BackgroundVariant,
   MarkerType,
+  ConnectionMode,
 } from '@xyflow/react';
 
 import { ArchitectureNode } from './components/nodes/ArchitectureNode';
@@ -1640,6 +1641,7 @@ function CanvasWorkspace() {
 
           <ReactFlow
             colorMode="dark"
+            connectionMode={ConnectionMode.Loose}
             nodes={nodes}
             edges={displayEdges}
             onNodesChange={onNodesChange}

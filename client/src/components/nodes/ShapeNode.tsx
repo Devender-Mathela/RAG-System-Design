@@ -117,7 +117,7 @@ export const ShapeNode = memo(({ id, data, selected }: NodeProps) => {
 
       {/* 4 Port Connection Handles for Diagramming */}
       <Handle
-        type="target"
+        type="source"
         position={Position.Left}
         id="left"
         className="!w-2.5 !h-2.5 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -129,7 +129,7 @@ export const ShapeNode = memo(({ id, data, selected }: NodeProps) => {
         className="!w-2.5 !h-2.5 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950 opacity-0 group-hover:opacity-100 transition-opacity"
       />
       <Handle
-        type="target"
+        type="source"
         position={Position.Top}
         id="top"
         className="!w-2.5 !h-2.5 !bg-slate-300 hover:!bg-indigo-400 !border-2 !border-slate-950 opacity-0 group-hover:opacity-100 transition-opacity"
