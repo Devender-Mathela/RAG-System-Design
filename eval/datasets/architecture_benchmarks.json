@@ -1,0 +1,165 @@
+[
+  {
+    "id": "arch-01-flawed-monolith",
+    "name": "Flawed Monolithic E-Commerce",
+    "systemContext": "High-traffic e-commerce flash sale backend prone to collapse under peak load.",
+    "nodes": [
+      { "id": "client-mobile", "name": "Mobile Client", "category": "client", "replicas": 1, "technology": "ios-android" },
+      { "id": "svc-order", "name": "Order Service", "category": "service", "replicas": 1, "technology": "nodejs" },
+      { "id": "svc-payment", "name": "Payment Service", "category": "service", "replicas": 1, "technology": "java" },
+      { "id": "svc-inventory", "name": "Inventory Service", "category": "service", "replicas": 1, "technology": "python" },
+      { "id": "svc-shipping", "name": "Shipping Service", "category": "service", "replicas": 1, "technology": "golang" },
+      { "id": "db-primary", "name": "Postgres Primary", "category": "database", "replicas": 1, "technology": "postgresql", "isStateful": true }
+    ],
+    "edges": [
+      { "id": "e-leak", "source": "client-mobile", "target": "db-primary", "protocol": "SQL", "isAsync": false },
+      { "id": "e-c2o", "source": "client-mobile", "target": "svc-order", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e-o2p", "source": "svc-order", "target": "svc-payment", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e-p2i", "source": "svc-payment", "target": "svc-inventory", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e-i2o", "source": "svc-inventory", "target": "svc-order", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e-o2s", "source": "svc-order", "target": "svc-shipping", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e-o2db", "source": "svc-order", "target": "db-primary", "protocol": "SQL", "isAsync": false },
+      { "id": "e-i2db", "source": "svc-inventory", "target": "db-primary", "protocol": "SQL", "isAsync": false }
+    ],
+    "expected_metrics": {
+      "services": 4,
+      "databases": 1,
+      "caches": 0,
+      "queues": 0,
+      "has_cycle": true
+    },
+    "expected_spofs": ["Postgres Primary", "Order Service"],
+    "expected_rule_violations": [
+      "Single Point of Failure: Unreplicated Database",
+      "Severe Security Risk: Direct Client-to-Database Connection",
+      "High Latency Risk: Missing In-Memory Caching Tier",
+      "Scalability Warning: Heavy Synchronous Service Coupling"
+    ],
+    "max_acceptable_redundancy_score": 40
+  },
+  {
+    "id": "arch-02-scalable-social",
+    "name": "Scalable Read-Heavy Social Platform",
+    "systemContext": "Twitter/Instagram-style timeline feed serving 50,000 read QPS with 99.99% availability.",
+    "nodes": [
+      { "id": "client-web", "name": "Web Browser", "category": "client", "replicas": 1, "technology": "react" },
+      { "id": "cdn-edge", "name": "Cloudflare CDN", "category": "gateway", "replicas": 3, "technology": "cloudflare" },
+      { "id": "gw-api", "name": "Kong API Gateway", "category": "gateway", "replicas": 3, "technology": "kong" },
+      { "id": "svc-feed", "name": "Feed Service", "category": "service", "replicas": 4, "technology": "golang" },
+      { "id": "cache-redis", "name": "Redis Cluster", "category": "cache", "replicas": 3, "technology": "redis" },
+      { "id": "db-feed-primary", "name": "Postgres Primary", "category": "database", "replicas": 2, "technology": "postgresql", "isStateful": true }
+    ],
+    "edges": [
+      { "id": "e1", "source": "client-web", "target": "cdn-edge", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e2", "source": "cdn-edge", "target": "gw-api", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e3", "source": "gw-api", "target": "svc-feed", "protocol": "gRPC", "isAsync": false },
+      { "id": "e4", "source": "svc-feed", "target": "cache-redis", "protocol": "TCP", "isAsync": false },
+      { "id": "e5", "source": "svc-feed", "target": "db-feed-primary", "protocol": "SQL", "isAsync": false }
+    ],
+    "expected_metrics": {
+      "services": 1,
+      "databases": 1,
+      "caches": 1,
+      "queues": 0,
+      "has_cycle": false
+    },
+    "expected_spofs": [],
+    "expected_rule_violations": [],
+    "min_acceptable_redundancy_score": 85
+  },
+  {
+    "id": "arch-03-event-ecommerce",
+    "name": "Event-Driven Asynchronous E-Commerce",
+    "systemContext": "Modern microservices architecture with Kafka event buffering and transactional outbox pattern.",
+    "nodes": [
+      { "id": "client-app", "name": "Mobile Client", "category": "client", "replicas": 1, "technology": "react-native" },
+      { "id": "gw-ingress", "name": "API Gateway", "category": "gateway", "replicas": 2, "technology": "envoy" },
+      { "id": "svc-checkout", "name": "Checkout Service", "category": "service", "replicas": 3, "technology": "nodejs" },
+      { "id": "queue-kafka", "name": "Kafka Event Bus", "category": "queue", "replicas": 3, "technology": "kafka" },
+      { "id": "svc-notification", "name": "Notification Worker", "category": "service", "replicas": 2, "technology": "python" },
+      { "id": "svc-fulfillment", "name": "Fulfillment Worker", "category": "service", "replicas": 2, "technology": "golang" },
+      { "id": "db-checkout", "name": "Checkout DB", "category": "database", "replicas": 2, "technology": "postgresql", "isStateful": true }
+    ],
+    "edges": [
+      { "id": "e1", "source": "client-app", "target": "gw-ingress", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e2", "source": "gw-ingress", "target": "svc-checkout", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e3", "source": "svc-checkout", "target": "queue-kafka", "protocol": "Pub/Sub", "isAsync": true },
+      { "id": "e4", "source": "svc-checkout", "target": "db-checkout", "protocol": "SQL", "isAsync": false },
+      { "id": "e5", "source": "queue-kafka", "target": "svc-notification", "protocol": "Pub/Sub", "isAsync": true },
+      { "id": "e6", "source": "queue-kafka", "target": "svc-fulfillment", "protocol": "Pub/Sub", "isAsync": true }
+    ],
+    "expected_metrics": {
+      "services": 3,
+      "databases": 1,
+      "caches": 0,
+      "queues": 1,
+      "has_cycle": false
+    },
+    "expected_spofs": [],
+    "expected_rule_violations": [],
+    "min_acceptable_redundancy_score": 80
+  },
+  {
+    "id": "arch-04-unprotected-write-bottleneck",
+    "name": "Unbuffered High-Ingress Logging Pipeline",
+    "systemContext": "IoT telemetry collection processing 20,000 events/sec directly into a single database.",
+    "nodes": [
+      { "id": "client-iot", "name": "IoT Devices", "category": "client", "replicas": 100, "technology": "embedded" },
+      { "id": "svc-collector", "name": "Collector Ingestion", "category": "service", "replicas": 1, "technology": "nodejs" },
+      { "id": "db-telemetry", "name": "Telemetry DB", "category": "database", "replicas": 1, "technology": "mongodb", "isStateful": true }
+    ],
+    "edges": [
+      { "id": "e1", "source": "client-iot", "target": "svc-collector", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e2", "source": "svc-collector", "target": "db-telemetry", "protocol": "TCP", "isAsync": false }
+    ],
+    "expected_metrics": {
+      "services": 1,
+      "databases": 1,
+      "caches": 0,
+      "queues": 0,
+      "has_cycle": false
+    },
+    "expected_spofs": ["Telemetry DB", "Collector Ingestion"],
+    "expected_rule_violations": [
+      "Single Point of Failure: Unreplicated Database"
+    ],
+    "max_acceptable_redundancy_score": 50
+  },
+  {
+    "id": "arch-05-multiregion-banking",
+    "name": "Active-Active Multi-Region Banking Core",
+    "systemContext": "PCI-DSS compliant financial settlement core spanning US-East and EU-West regions.",
+    "nodes": [
+      { "id": "client-mobile", "name": "Banking App", "category": "client", "replicas": 1, "technology": "flutter" },
+      { "id": "dns-anycast", "name": "Route 53 Anycast", "category": "gateway", "replicas": 3, "technology": "aws-route53" },
+      { "id": "gw-east", "name": "API Gateway US-East", "category": "gateway", "replicas": 3, "technology": "envoy" },
+      { "id": "gw-west", "name": "API Gateway EU-West", "category": "gateway", "replicas": 3, "technology": "envoy" },
+      { "id": "svc-ledger-east", "name": "Ledger Service East", "category": "service", "replicas": 3, "technology": "java" },
+      { "id": "svc-ledger-west", "name": "Ledger Service West", "category": "service", "replicas": 3, "technology": "java" },
+      { "id": "cache-redis-east", "name": "Redis US-East", "category": "cache", "replicas": 3, "technology": "redis" },
+      { "id": "cache-redis-west", "name": "Redis EU-West", "category": "cache", "replicas": 3, "technology": "redis" },
+      { "id": "db-spanner", "name": "CockroachDB Multi-Region", "category": "database", "replicas": 5, "technology": "cockroachdb", "isStateful": true }
+    ],
+    "edges": [
+      { "id": "e1", "source": "client-mobile", "target": "dns-anycast", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e2", "source": "dns-anycast", "target": "gw-east", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e3", "source": "dns-anycast", "target": "gw-west", "protocol": "HTTPS", "isAsync": false },
+      { "id": "e4", "source": "gw-east", "target": "svc-ledger-east", "protocol": "gRPC", "isAsync": false },
+      { "id": "e5", "source": "gw-west", "target": "svc-ledger-west", "protocol": "gRPC", "isAsync": false },
+      { "id": "e6", "source": "svc-ledger-east", "target": "cache-redis-east", "protocol": "TCP", "isAsync": false },
+      { "id": "e7", "source": "svc-ledger-west", "target": "cache-redis-west", "protocol": "TCP", "isAsync": false },
+      { "id": "e8", "source": "svc-ledger-east", "target": "db-spanner", "protocol": "SQL", "isAsync": false },
+      { "id": "e9", "source": "svc-ledger-west", "target": "db-spanner", "protocol": "SQL", "isAsync": false }
+    ],
+    "expected_metrics": {
+      "services": 2,
+      "databases": 1,
+      "caches": 2,
+      "queues": 0,
+      "has_cycle": false
+    },
+    "expected_spofs": [],
+    "expected_rule_violations": [],
+    "min_acceptable_redundancy_score": 90
+  }
+]

@@ -18,7 +18,7 @@ import { AppService } from './app.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../.env'],
+      envFilePath: ['../.env', '.env'],
     }),
     PrismaModule,
     RedisModule,

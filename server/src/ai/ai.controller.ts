@@ -14,6 +14,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AiService } from './ai.service';
+import { InterviewService } from './interview.service';
 import { CritiqueRequestDto } from './dto/critique.dto';
 import { GenerateInterviewQuestionsDto, EvaluateInterviewAnswerDto } from './dto/interview.dto';
 import { RedisService } from '../redis/redis.service';
@@ -26,6 +27,7 @@ import { AnalysisJobPayload } from '../queue/queue.interface';
 export class AiController {
   constructor(
     private readonly aiService: AiService,
+    private readonly interviewService: InterviewService,
     private readonly redisService: RedisService,
     private readonly producerService: RedpandaProducerService,
     private readonly jobStore: JobStoreService,
@@ -129,7 +131,7 @@ export class AiController {
   @ApiOperation({ summary: 'Generate balanced interview questions based on graph topology' })
   @ApiResponse({ status: 200, description: 'Interview questions generated' })
   async getInterviewQuestions(@Body() dto: GenerateInterviewQuestionsDto) {
-    return this.aiService.generateInterviewQuestions(
+    return this.interviewService.generateInterviewQuestions(
       dto.nodes || [],
       dto.edges || [],
       dto.count || 5,
@@ -141,7 +143,7 @@ export class AiController {
   @ApiOperation({ summary: 'Evaluate student interview answer against ideal answer and concepts' })
   @ApiResponse({ status: 200, description: 'Answer evaluated with accuracy and feedback' })
   async evaluateInterviewAnswer(@Body() dto: EvaluateInterviewAnswerDto) {
-    return this.aiService.evaluateInterviewAnswer(
+    return this.interviewService.evaluateInterviewAnswer(
       dto.question,
       dto.idealAnswer,
       dto.keyConcepts || [],

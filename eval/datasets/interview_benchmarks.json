@@ -1,0 +1,65 @@
+[
+  {
+    "id": "int-01-staff-cache-stampede",
+    "question": "Under 100,000 QPS, what occurs during a Cache Stampede (Thundering Herd) when a hot key expires, and what architectural safeguards prevent database meltdown?",
+    "tier": "STAFF",
+    "idealAnswer": "When a high-traffic key expires in cache, thousands of concurrent requests miss simultaneously and execute the expensive query directly against the database at the same millisecond. Safeguards include: 1) Mutual Exclusion (Distributed Mutex Locking) using Redis Redlock so only 1 worker queries DB while others wait; 2) Probabilistic Early Expiration (XFetch algorithm) where cache reads refresh the key before it strictly expires; 3) Adding random jitter to TTLs to prevent synchronized expirations (Cache Avalanche).",
+    "keyConcepts": ["Cache Stampede", "Distributed Mutex", "Redlock", "XFetch", "TTL Jitter", "Thundering Herd"],
+    "candidateAnswer": "A cache stampede or thundering herd occurs when a high-traffic hot key expires from Redis, causing thousands of concurrent read threads to miss cache and overwhelm the underlying PostgreSQL database simultaneously with disk-bound queries. To safeguard against database meltdown, I would implement: 1) A distributed mutex using Redis (Redlock or SETNX) so only a single thread regenerates the cache while other requests wait or return stale data; 2) Probabilistic early expiration like the XFetch algorithm to asynchronously recompute the cache before the TTL strictly elapses; and 3) TTL jitter to prevent synchronized expirations.",
+    "expected_verdict": true,
+    "expected_min_score": 75
+  },
+  {
+    "id": "int-02-junior-cache-stampede",
+    "question": "Under 100,000 QPS, what occurs during a Cache Stampede (Thundering Herd) when a hot key expires, and what architectural safeguards prevent database meltdown?",
+    "tier": "JUNIOR",
+    "idealAnswer": "When a high-traffic key expires in cache, thousands of concurrent requests miss simultaneously and execute the expensive query directly against the database at the same millisecond. Safeguards include: 1) Mutual Exclusion (Distributed Mutex Locking) using Redis Redlock so only 1 worker queries DB while others wait; 2) Probabilistic Early Expiration (XFetch algorithm) where cache reads refresh the key before it strictly expires; 3) Adding random jitter to TTLs to prevent synchronized expirations (Cache Avalanche).",
+    "keyConcepts": ["Cache Stampede", "Distributed Mutex", "Redlock", "XFetch", "TTL Jitter", "Thundering Herd"],
+    "candidateAnswer": "When a key expires in redis, users will hit the database instead of the cache. The database might get slow because of too many queries. We can fix this by increasing the redis memory and setting a longer TTL on the key so it does not expire quickly.",
+    "expected_verdict": false,
+    "expected_min_score": 20,
+    "expected_max_score": 60
+  },
+  {
+    "id": "int-03-staff-saga-pattern",
+    "question": "When a business transaction spans multiple microservices with separate databases, why is Two-Phase Commit (2PC) discouraged, and how does the Saga Pattern resolve this?",
+    "tier": "STAFF",
+    "idealAnswer": "Two-Phase Commit (2PC) is a blocking protocol: while the coordinator waits for all nodes to vote, database row locks remain held. In distributed microservices, network latency or a single slow node stalls all locks, causing catastrophic throughput drops and availability vulnerabilities. The Saga pattern replaces 2PC with a sequence of local transactions: each service updates its own database and publishes an event. If a step fails, the saga executes compensating transactions in reverse to revert the changes.",
+    "keyConcepts": ["Saga Pattern", "Compensating Transactions", "2PC Blocking Row Lock", "Eventual Consistency", "Orchestration vs Choreography"],
+    "candidateAnswer": "Two-Phase Commit (2PC) relies on a centralized coordinator holding row-level locks across independent microservice databases during the prepare and commit phases. If any single node or network link is slow, all database row locks are blocked, killing system throughput and violating the CAP theorem availability. The Saga pattern solves this through eventual consistency by decomposing the transaction into local ACID transactions per service. If a subsequent step like payment fails, compensating transactions are executed in reverse order to undo earlier steps. Sagas can be implemented via Orchestration with a state machine or Choreography with Kafka event streams.",
+    "expected_verdict": true,
+    "expected_min_score": 80
+  },
+  {
+    "id": "int-04-failing-too-short",
+    "question": "When a business transaction spans multiple microservices with separate databases, why is Two-Phase Commit (2PC) discouraged, and how does the Saga Pattern resolve this?",
+    "tier": "FAILING",
+    "idealAnswer": "Two-Phase Commit (2PC) is a blocking protocol: while the coordinator waits for all nodes to vote, database row locks remain held. In distributed microservices, network latency or a single slow node stalls all locks, causing catastrophic throughput drops and availability vulnerabilities. The Saga pattern replaces 2PC with a sequence of local transactions: each service updates its own database and publishes an event. If a step fails, the saga executes compensating transactions in reverse to revert the changes.",
+    "keyConcepts": ["Saga Pattern", "Compensating Transactions", "2PC Blocking Row Lock", "Eventual Consistency", "Orchestration vs Choreography"],
+    "candidateAnswer": "Use Saga pattern because it is better than 2PC.",
+    "expected_verdict": false,
+    "expected_min_score": 0,
+    "expected_max_score": 30
+  },
+  {
+    "id": "int-05-staff-rate-limiter",
+    "question": "Design a globally distributed rate limiting architecture capable of handling 500,000 QPS across multiple regions without adding high latency.",
+    "tier": "STAFF",
+    "idealAnswer": "A distributed rate limiter cannot rely on in-memory counters per node due to multiple gateway replicas. I would implement the Sliding Window Counter or Token Bucket algorithm backed by Redis using atomic Lua scripts (to eliminate race conditions and avoid multi-hop network round-trips). In multi-region deployments, regional rate limit counters run locally in each region's Redis cluster with periodic background synchronization (or localized token quotas) to prevent cross-continent latency on every request.",
+    "keyConcepts": ["Token Bucket", "Sliding Window Counter", "Atomic Redis Lua Script", "HTTP 429", "Regional Token Quotas"],
+    "candidateAnswer": "For a 500k QPS multi-region rate limiter, having every request make a cross-region synchronous network call to a centralized counter would add 100-200ms latency, which is unacceptable. Instead, I would place Envoy API gateways at the edge in each region backed by a local Redis cluster. We use the Sliding Window Counter algorithm executed atomically via Redis Lua scripts to eliminate race conditions. For global quotas, we allocate fractional token budgets to each region based on traffic share, synchronizing asynchronously in the background. If a client exhausts tokens, the gateway returns HTTP 429 immediately.",
+    "expected_verdict": true,
+    "expected_min_score": 80
+  },
+  {
+    "id": "int-06-mid-rate-limiter",
+    "question": "Design a globally distributed rate limiting architecture capable of handling 500,000 QPS across multiple regions without adding high latency.",
+    "tier": "MID",
+    "idealAnswer": "A distributed rate limiter cannot rely on in-memory counters per node due to multiple gateway replicas. I would implement the Sliding Window Counter or Token Bucket algorithm backed by Redis using atomic Lua scripts (to eliminate race conditions and avoid multi-hop network round-trips). In multi-region deployments, regional rate limit counters run locally in each region's Redis cluster with periodic background synchronization (or localized token quotas) to prevent cross-continent latency on every request.",
+    "keyConcepts": ["Token Bucket", "Sliding Window Counter", "Atomic Redis Lua Script", "HTTP 429", "Regional Token Quotas"],
+    "candidateAnswer": "We can put a rate limiter middleware on the API Gateway. It connects to a single Redis instance and increments a key with an expire timer. If the key count exceeds the limit, it returns 429.",
+    "expected_verdict": true,
+    "expected_min_score": 40,
+    "expected_max_score": 75
+  }
+]

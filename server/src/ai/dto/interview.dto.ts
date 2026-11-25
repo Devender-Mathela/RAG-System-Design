@@ -57,3 +57,24 @@ export class EvaluateInterviewAnswerDto {
   @IsArray()
   edges?: any[];
 }
+
+export interface InterviewQuestionItem {
+  id: string;
+  question: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  category: string;
+  targetComponent?: string;
+  contextExplanation: string;
+  idealAnswer: string;
+  keyConcepts: string[];
+}
+
+export interface AnswerEvaluationResult {
+  accuracyScore: number;
+  isCorrect: boolean;
+  strengths: string[];
+  missingPoints: string[];
+  feedback: string;
+  idealAnswer: string;
+}
+

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "rag-01",
+    "query": "redis caching patterns cache-aside latency memory eviction policies LRU LFU",
+    "topic": "In-Memory Data Stores & Caching",
+    "expected_doc_keys": ["03-redis-caching-patterns", "02-cdn-edge-caching"],
+    "expected_concepts": ["Cache-Aside", "Write-Through", "Write-Back", "LRU", "LFU", "Volatile-TTL"],
+    "reference_answer": "Redis is an in-memory key-value store providing sub-millisecond response times. Key caching strategies include Cache-Aside (Lazy Loading), Write-Through, and Write-Back. Eviction policies include volatile-lru, allkeys-lru, and volatile-ttl."
+  },
+  {
+    "id": "rag-02",
+    "query": "database replication failover high availability single point of failure leader follower standby",
+    "topic": "Database Resilience & Fault Tolerance",
+    "expected_doc_keys": ["06-database-replication", "14-failover-high-availability"],
+    "expected_concepts": ["Primary-Replica", "Leader-Follower", "Automated Failover", "Split-Brain", "Replication Lag"],
+    "reference_answer": "Database replication eliminates single points of failure by copying writes from a primary/leader node to one or more standby read replicas. Automated failover uses heartbeats and quorum-based leader election to promote a replica during primary failure."
+  },
+  {
+    "id": "rag-03",
+    "query": "api gateway patterns ingress reverse proxy rate limiting authentication bff",
+    "topic": "API Architecture & Ingress Security",
+    "expected_doc_keys": ["12-api-gateway-patterns", "09-api-rate-limiting"],
+    "expected_concepts": ["Reverse Proxy", "Backend-For-Frontend", "Token Bucket", "SSL Termination", "Request Routing"],
+    "reference_answer": "An API Gateway serves as a unified entry point reverse proxy for client requests, handling cross-cutting concerns such as TLS termination, authentication, rate limiting, and request routing to downstream microservices."
+  },
+  {
+    "id": "rag-04",
+    "query": "kafka event streaming asynchronous messaging pub sub decoupling buffering backpressure",
+    "topic": "Event-Driven Architecture & Messaging",
+    "expected_doc_keys": ["04-kafka-event-streaming", "11-microservices-communication"],
+    "expected_concepts": ["Publish-Subscribe", "Topic Partitioning", "Consumer Groups", "Decoupling", "Backpressure"],
+    "reference_answer": "Apache Kafka provides high-throughput, partitioned event streaming that decouples producers and consumers temporally and spatially, buffering bursts of write traffic and eliminating cascading synchronous failures."
+  },
+  {
+    "id": "rag-05",
+    "query": "circuit breaker pattern cascading failure resilience fallback timeout thread pool exhaustion",
+    "topic": "Resilience & Fault Tolerance",
+    "expected_doc_keys": ["15-circuit-breaker-pattern", "14-failover-high-availability"],
+    "expected_concepts": ["Closed", "Open", "Half-Open", "Failure Threshold", "Fallback Response"],
+    "reference_answer": "The Circuit Breaker pattern prevents cascading outages across microservices by wrapping network calls in a state machine (Closed, Open, Half-Open). When error rates exceed a threshold, it fails fast without saturating downstream threads."
+  },
+  {
+    "id": "rag-06",
+    "query": "database sharding horizontal partitioning consistent hashing shard key range based",
+    "topic": "Data Partitioning & Scalability",
+    "expected_doc_keys": ["05-database-sharding", "10-database-indexing"],
+    "expected_concepts": ["Horizontal Partitioning", "Consistent Hashing", "Shard Key", "Cross-Shard Joins", "Rebalancing"],
+    "reference_answer": "Database sharding horizontally divides rows across multiple autonomous database engines using a deterministic shard key and consistent hashing, scaling write throughput beyond the hardware limits of a single machine."
+  },
+  {
+    "id": "rag-07",
+    "query": "cap theorem tradeoffs consistency availability partition tolerance pacelc",
+    "topic": "Distributed Consensus & Trade-offs",
+    "expected_doc_keys": ["07-cap-theorem-tradeoffs", "13-consistency-models"],
+    "expected_concepts": ["Consistency", "Availability", "Partition Tolerance", "PACELC", "Network Partition"],
+    "reference_answer": "The CAP theorem states that under an inevitable network partition, a distributed system must choose between Consistency (all nodes return current write) and Availability (every non-failing node returns a response)."
+  },
+  {
+    "id": "rag-08",
+    "query": "api rate limiting algorithms sliding window counter token bucket leaky bucket 429",
+    "topic": "Traffic Shaping & DDoS Protection",
+    "expected_doc_keys": ["09-api-rate-limiting", "12-api-gateway-patterns"],
+    "expected_concepts": ["Token Bucket", "Sliding Window Counter", "Leaky Bucket", "HTTP 429", "Redis Lua Script"],
+    "reference_answer": "Rate limiting protects backend systems from overload and abusive traffic using algorithms like Token Bucket and Sliding Window Counter, enforced atomically via Redis Lua scripts returning HTTP 429 Too Many Requests."
+  }
+]
