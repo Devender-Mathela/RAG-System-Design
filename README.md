@@ -1,83 +1,110 @@
-# System Design with AI — Architecture Studio & Interview Platform
+# SystemIQ — RAG-Based AI System Design & Interview Platform
 
-> **Guiding Principle**: *Build the smallest system that demonstrates the architectural concept correctly. Whenever unsure whether to add or cut something, this is the tiebreaker.*
-
-A full-stack, developer-focused platform where software engineers visually diagram distributed systems and receive instant, AI-driven critique grounded in **deterministic graph algorithms**, **pgvector RAG**, and an interactive **Live Interview Mode**.
+> An interactive distributed system architecture studio and interview platform powered by deterministic graph analysis, pgvector RAG, and live AI evaluation.
 
 ---
 
-## 📚 Master Documentation & Specifications
+## 🚀 Features
 
-All core architectural blueprints, execution roadmaps, and stage walkthroughs are organized inside the [**`docs/`**](file:///d:/Major%20Project/System-Design-with-AI/docs/) directory:
-
-| Document | Location | Purpose |
-| :--- | :--- | :--- |
-| **System Architecture** | [**`docs/architecture.md`**](file:///d:/Major%20Project/System-Design-with-AI/docs/architecture.md) | Complete architectural specification, contracts, and flow diagrams |
-| **Master Implementation Plan** | [**`docs/implementation-plan.md`**](file:///d:/Major%20Project/System-Design-with-AI/docs/implementation-plan.md) | Step-by-step roadmap execution plan (Phases 1 through 8) |
-| **Technical Decisions Log** | [**`docs/decision.md`**](file:///d:/Major%20Project/System-Design-with-AI/docs/decision.md) | Architectural and technical decisions with rationale & alternatives |
-| **Product Roadmap** | [**`docs/system-design-tool-roadmap.pdf`**](file:///d:/Major%20Project/System-Design-with-AI/docs/system-design-tool-roadmap.pdf) | Original 11-page master roadmap PDF |
-| **Phase Walkthroughs** | [**`docs/stages/`**](file:///d:/Major%20Project/System-Design-with-AI/docs/stages/) | Beginner-friendly guides for completed implementation phases (`phase1.md`, `phase2.md`, `phase3.md`, `phase4.md`) |
-| **Architectural Knowledge Base** | [**`docs/knowledge-base/`**](file:///d:/Major%20Project/System-Design-with-AI/docs/knowledge-base/) | 15 curated distributed systems reference documents for RAG grounding |
-| **Architecture Decision Records** | [**`docs/adr/`**](file:///d:/Major%20Project/System-Design-with-AI/docs/adr/) | Significant technical decisions (`ADR-001-monorepo-and-core-stack.md`) |
-| **Agent Instructions** | [**`AGENTS.md`**](file:///d:/Major%20Project/System-Design-with-AI/AGENTS.md) | Coding discipline, Ponytail philosophy, and architectural constraints |
-| **UI/UX Design System** | [**`design-system/system-design-studio/MASTER.md`**](file:///d:/Major%20Project/System-Design-with-AI/design-system/system-design-studio/MASTER.md) | OLED dark mode design tokens, typography, and component styling |
+- **Interactive Architecture Studio**: Drag-and-drop system design whiteboard powered by React Flow (`@xyflow/react`).
+- **Deterministic Graph Analysis**: In-memory graph traversal detecting Single Points of Failure (SPOFs), bottlenecks, and scalability gaps.
+- **RAG-Powered Domain Reasoning**: Semantic retrieval against 15 distributed systems knowledge-base modules.
+- **AI System Design Interviewer**: Live technical interview simulation with rubrics, technical depth scoring, and feedback.
+- **Enterprise-Grade Evaluation**: Built-in, transparent LangSmith evaluation pipelines tracking faithfulness, precision, recall, and technical depth.
 
 ---
 
-## 🏗️ Repository Layout
+## 🛠️ Tech Stack
 
-```
-system-design-with-ai/
-├── client/                        # Frontend Application (React 19 + TypeScript + Vite + @xyflow/react)
-├── server/                        # Backend Application (NestJS 11 + TypeScript + Prisma ORM)
-├── docker/
-│   └── docker-compose.yml         # PostgreSQL 16 (pgvector), Redis 7, Redpanda
-├── docs/                          # Master Documentation & Blueprints
-│   ├── architecture.md            # System Architecture Blueprint
-│   ├── implementation-plan.md     # Phase 1-8 Master Implementation Plan
-│   ├── system-design-tool-roadmap.pdf # Product Roadmap PDF
-│   ├── knowledge-base/            # 15 Architectural Knowledge Base Reference Guides
-│   ├── adr/                       # Architecture Decision Records
-│   └── stages/                    # Stage-by-Stage Implementation Guides
-├── design-system/                 # Studio UI Tokens & Design Guidelines
-├── AGENTS.md                      # Engineering Rules & Agent Guidelines
-└── package.json                   # Root workspaces configuration
+- **Frontend (`client/`)**: React 19, TypeScript, Vite, Tailwind CSS, `@xyflow/react`
+- **Backend (`server/`)**: NestJS, TypeScript, Prisma ORM, WebSockets (`socket.io`), Swagger
+- **Data & Caching**: SQLite (Dev) / PostgreSQL + pgvector, Redis (Caching & Rate Limiting)
+- **Event Streaming**: Redpanda / Kafka (Async analysis workers)
+- **Evaluation & Tracing**: LangSmith Cloud SDK, Groq / Gemini LLMs
+
+---
+
+## 📁 Project Structure
+
+```text
+├── client/          # Frontend Web Application (React + Vite)
+├── server/          # Backend REST & WebSocket API (NestJS + Prisma)
+├── docker/          # Docker Compose configurations (Postgres, Redis, Redpanda)
+├── docs/            # Engineering blueprints & RAG knowledge base
+│   ├── knowledge-base/   # 15 System Design reference documents for RAG
+│   ├── architecture.md   # System architecture & data flow specification
+│   ├── decision.md       # Architectural decisions log
+│   └── design-system/    # Visual design tokens & styling guide
+├── eval/            # LangSmith Cloud Evaluation Suite (Pure math evaluators)
+├── scripts/         # Security scanning & pre-commit audits
+├── .env             # Unified environment configuration
+├── package.json     # Workspace management & root scripts
+└── README.md        # Project guide
 ```
 
 ---
 
-## ⚡ Quick Start (Local Development)
+## ⚡ Quick Start
 
 ### 1. Prerequisites
 - **Node.js**: $\ge 20.x$
 - **npm**: $\ge 10.x$
-- **Docker Desktop**: Running locally
 
-### 2. Start Local Infrastructure
+### 2. Installation
+Clone the repository and install dependencies:
 ```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-Starts:
-- **PostgreSQL 16 with pgvector** on `localhost:5432`
-- **Redis 7** on `localhost:6379`
-- **Redpanda (Kafka)** on `localhost:19092`
-
-### 3. Install Dependencies
-```bash
+git clone <repository-url>
+cd System-Design-with-AI
 npm install
 ```
 
-### 4. Setup Environment Variables
-Copy `.env.example` to `.env`:
+### 3. Environment Setup
+Copy the example environment file:
 ```bash
 cp .env.example .env
 ```
-*(Optional: Add `GEMINI_API_KEY` or `GROQ_API_KEY` for live LLM reasoning; deterministic fallback works automatically with zero keys).*
+*(Add your `GROQ_API_KEY` or `GEMINI_API_KEY` in `.env`. Deterministic fallbacks activate automatically if keys are omitted).*
 
-### 5. Launch Development Servers
+### 4. Database Setup & Knowledge Ingestion
+```bash
+cd server
+npx prisma db push
+npm run kb:ingest
+cd ..
+```
+
+### 5. Run the Application
+Start both frontend and backend concurrently:
 ```bash
 npm run dev
 ```
-- **Frontend Canvas Studio**: [http://localhost:5173](http://localhost:5173)
+
+- **Frontend Studio**: [http://localhost:5173](http://localhost:5173)
 - **Backend API**: [http://localhost:4000](http://localhost:4000)
-- **Interactive Swagger Docs**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs)
+- **Swagger API Docs**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs)
+
+---
+
+## 🧪 Testing & Evaluation
+
+### Run Server Unit Tests
+```bash
+cd server
+npm run test
+```
+
+### Security & Secret Leak Audit
+```bash
+npm run check:keys
+```
+
+### Run LangSmith Cloud Evaluations
+Run direct benchmark experiments on LangSmith Cloud:
+```bash
+python eval/langsmith_eval.py
+```
+
+---
+
+## 📜 License
+MIT License.

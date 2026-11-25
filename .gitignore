@@ -54,3 +54,6 @@ lerna-debug.log*
 # Temporary folders
 scratch/
 tmp/
+
+# Archived non-production & dev files
+archive/
